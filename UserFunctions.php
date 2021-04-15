@@ -1,68 +1,17 @@
 <?php
-/**
- * UserFunctions extension - Provides a set of dynamic parser functions that trigger on the current user.
- * @version 2.7.0 - 2017/07/26 (Based on ParserFunctions)
- *
- * @link https://www.mediawiki.org/wiki/Extension:UserFunctions Documentation
- * @link https://www.mediawiki.org/wiki/Extension_talk:UserFunctions Support
- * @link https://phabricator.wikimedia.org/diffusion/EUFU/ Source code
- *
- * @file UserFunctions.php
- * @ingroup Extensions
- * @package MediaWiki
- * @author Algorithm
- * @author Lexw
- * @author Louperivois
- * @author Wikinaut
- * @author Kghbln
- * @author Toniher
- * @author Uckelman
- * @copyright (C) 2006 Algorithm
- * @license https://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'UserFunctions' );
 
-// Ensure that the script cannot be executed outside of MediaWiki.
-if ( !defined( 'MEDIAWIKI' ) ) {
-	die( 'This file is a MediaWiki extension, it is not a valid entry point' );
+	$wgMessagesDirs['UserFunctions'] = __DIR__ . '/i18n';
+
+	$wgExtensionMessagesFiles['UserFunctionsMagic'] = __DIR__ . '/UserFunctions.i18n.magic.php';
+
+	wfWarn(
+		'Deprecated PHP entry point used for the UserFunctions extension. ' .
+		'Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);
+	return;
+} else {
+	die( 'This version of the UserFunctions extension requires MediaWiki 1.35+' );
 }
-
-//self executing anonymous function to prevent global scope assumptions
-call_user_func( function() {
-
-	/**
-	 * Enable Personal Data Functions
-	 * Set this to true if you want your users to be able to use the following functions:
-	 * realname, username, useremail, nickname, ip
-	 * WARNING: These functions can be used to leak your user's email addresses and real names.
-	 * If unsure, don't activate these features.
-	**/
-	$GLOBALS['wgUFEnablePersonalDataFunctions'] = false;
-
-	/** Allow to be used in places such as SF form **/
-	$GLOBALS['wgUFEnableSpecialContexts'] = true;
-
-	/** Restrict to certain namespaces **/
-	$GLOBALS['wgUFAllowedNamespaces'] = array(
-		NS_MEDIAWIKI => true
-	);
-
-	$GLOBALS['wgExtensionCredits']['parserhook'][] = array(
-		'path' => __FILE__,
-		'name' => 'UserFunctions',
-		'version' => '2.7.0',
-		'url' => 'https://www.mediawiki.org/wiki/Extension:UserFunctions',
-		'author' => array(
-			'Ross McClure',
-			'Toni Hermoso Pulido',
-			'...'
-			),
-		'descriptionmsg' => 'userfunctions-desc',
-		'license-name' => 'GPL-2.0-or-later'
-	);
-
-	$GLOBALS['wgAutoloadClasses']['ExtUserFunctions'] = __DIR__ .'/UserFunctions_body.php';
-	$GLOBALS['wgMessagesDirs']['UserFunctions'] = __DIR__ . '/i18n';
-	$GLOBALS['wgExtensionMessagesFiles']['UserFunctionsMagic'] = __DIR__ . '/UserFunctions.i18n.magic.php';
-
-	$GLOBALS['wgHooks']['ParserFirstCallInit'][] = 'wfRegisterUserFunctions';
-});
