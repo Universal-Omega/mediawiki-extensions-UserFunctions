@@ -7,7 +7,8 @@ class ExtUserFunctions {
 	 * @return bool
 	 */
 	public static function clearState( $parser ) {
-		$parser->pf_ifexist_breakdown = array();
+		$parser->pf_ifexist_breakdown = [];
+
 		return true;
 	}
 
@@ -18,9 +19,12 @@ class ExtUserFunctions {
 	 */
 	public static function registerClearHook() {
 		static $done = false;
-		if( !$done ) {
+
+		if ( !$done ) {
 			global $wgHooks;
+
 			$wgHooks['ParserClearState'][] = __CLASS__ . '::clearState';
+
 			$done = true;
 		}
 	}
@@ -31,6 +35,7 @@ class ExtUserFunctions {
 	 **/
 	private static function getUserObj() {
 		global $wgUser;
+
 		return $wgUser;
 	}
 
@@ -44,7 +49,7 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isAnon() ){
+		if ( $pUser->isAnon() ){
 			return isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : '';
 		} else {
 			return isset( $args[1] ) ? trim( $frame->expand( $args[1] ) ) : '';
@@ -61,7 +66,7 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isBlocked() ){
+		if ( $pUser->isBlocked() ){
 			return isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : '';
 		} else {
 			return isset( $args[1] ) ? trim( $frame->expand( $args[1] ) ) : '';
@@ -78,7 +83,7 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isAllowed( 'protect' ) ){
+		if ( $pUser->isAllowed( 'protect' ) ){
 			return isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : '';
 		} else {
 			return isset( $args[1] ) ? trim( $frame->expand( $args[1] ) ) : '';
@@ -97,7 +102,7 @@ class ExtUserFunctions {
 
 		$grp = isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : '';
 
-		if( $grp!=='' ) {
+		if ( $grp!=='' ) {
 			# Considering multiple groups
 			$allgrp = explode(",", $grp);
 
@@ -108,6 +113,7 @@ class ExtUserFunctions {
 				}
 			}
 		}
+
 		return isset( $args[2] ) ? trim( $frame->expand( $args[2] ) ) : '';
 	}
 
@@ -120,9 +126,10 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isAnon() && $alt !== '' ) {
+		if ( $pUser->isAnon() && $alt !== '' ) {
 			return $alt;
 		}
+
 		return $pUser->getRealName();
 	}
 
@@ -135,9 +142,10 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isAnon() && $alt !== '' ) {
+		if ( $pUser->isAnon() && $alt !== '' ) {
 			return $alt;
 		}
+
 		return $pUser->getName();
 	}
 
@@ -150,9 +158,10 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if($pUser->isAnon() && $alt!=='') {
+		if ( $pUser->isAnon() && $alt!=='' ) {
 			return $alt;
 		}
+
 		return $pUser->getEmail();
 	}
 
@@ -165,14 +174,17 @@ class ExtUserFunctions {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
-		if( $pUser->isAnon() ) {
+		if ( $pUser->isAnon() ) {
 			if ( $alt !== '' ) {
 				return $alt;
 			}
+
 			return $pUser->getName();
 		}
+
 		$nickname = $pUser->getOption( 'nickname' );
 		$nickname = $nickname === '' ? $pUser->getName() : $nickname;
+
 		return $nickname;
 	}
 
@@ -183,6 +195,7 @@ class ExtUserFunctions {
 	public static function ip( $parser ) {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$request = self::getUserObj()->getRequest();
+
 		return $request->getIP();
 	}
 
@@ -206,8 +219,8 @@ class ExtUserFunctions {
 
 		// As far it's not special case, check if current page NS is in the allowed list
 		if ( !$special ) {
-			if ( isset( $wgUFAllowedNamespaces[$cur_ns] ) ) {
-				if ( $wgUFAllowedNamespaces[$cur_ns] ) {
+			if ( isset( (int)$wgUFAllowedNamespaces[$cur_ns] ) ) {
+				if ( (int)$wgUFAllowedNamespaces[$cur_ns] ) {
 					$process = true;
 				}
 			}
@@ -219,7 +232,6 @@ class ExtUserFunctions {
 
 		if ( $process ) {
 			// These functions accept DOM-style arguments
-
 			$parser->setFunctionHook( 'ifanon', [ __CLASS__, 'ifanonObj' ], Parser::SFH_OBJECT_ARGS );
 			$parser->setFunctionHook( 'ifblocked', [ __CLASS__, 'ifblockedObj' ], Parser::SFH_OBJECT_ARGS );
 			$parser->setFunctionHook( 'ifsysop', [ __CLASS__, 'ifsysopObj' ], Parser::SFH_OBJECT_ARGS );
