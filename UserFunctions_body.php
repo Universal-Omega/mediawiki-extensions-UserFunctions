@@ -91,7 +91,7 @@ class ExtUserFunctions {
 	 * @param $args array
 	 * @return string
 	 */
-	public static function ifingroupObj ( $parser, $frame, $args ) {
+	public static function ifingroupObj( $parser, $frame, $args ) {
 		$parser->getOutput()->updateCacheExpiry( 0 );
 		$pUser = self::getUserObj();
 
