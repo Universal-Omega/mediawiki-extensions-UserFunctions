@@ -186,4 +186,52 @@ class ExtUserFunctions {
 		return $request->getIP();
 	}
 
+	/**
+	 * @param Parser $parser
+	 */
+	public static function onParserFirstCallInit( Parser $parser ) {
+		global $wgUFEnablePersonalDataFunctions, $wgUFAllowedNamespaces, $wgUFEnableSpecialContexts;
+
+		// Whether it's a Special Page or a Maintenance Script
+		$special = false;
+
+		// Initialize NS
+		$title = RequestContext::getMain()->getTitle();
+		$cur_ns = $title === null ? -1 : $title->getNamespace();
+		if ( $cur_ns == -1 ) {
+			$special = true;
+		}
+
+		$process = false;
+
+		// As far it's not special case, check if current page NS is in the allowed list
+		if ( !$special ) {
+			if ( isset( $wgUFAllowedNamespaces[$cur_ns] ) ) {
+				if ( $wgUFAllowedNamespaces[$cur_ns] ) {
+					$process = true;
+				}
+			}
+		} elseif ( $wgUFEnableSpecialContexts ) {
+			if ( $special ) {
+				$process = true;
+			}
+		}
+
+		if ( $process ) {
+			// These functions accept DOM-style arguments
+
+			$parser->setFunctionHook( 'ifanon', [ __CLASS__, 'ifanonObj' ], Parser::SFH_OBJECT_ARGS );
+			$parser->setFunctionHook( 'ifblocked', [ __CLASS__, 'ifblockedObj' ], Parser::SFH_OBJECT_ARGS );
+			$parser->setFunctionHook( 'ifsysop', [ __CLASS__, 'ifsysopObj' ], Parser::SFH_OBJECT_ARGS );
+			$parser->setFunctionHook( 'ifingroup', [ __CLASS__, 'ifingroupObj' ], Parser::SFH_OBJECT_ARGS );
+
+			if ( $wgUFEnablePersonalDataFunctions ) {
+				$parser->setFunctionHook( [ __CLASS__, 'realname' ], 'realname' );
+				$parser->setFunctionHook( [ __CLASS__, 'username' ], 'username' );
+				$parser->setFunctionHook( [ __CLASS__, 'useremail' ], 'useremail' );
+				$parser->setFunctionHook( [ __CLASS__, 'nickname' ], 'nickname' );
+				$parser->setFunctionHook( [ __CLASS__, 'ip' ], 'ip' );
+			}
+		}
+	}
 }
